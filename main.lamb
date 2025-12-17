@@ -1,3 +1,4 @@
-// let 0 = \f.\x.x in
-// let succ = \n.\f.\x.f (n f x) in
-succ 0
+#use std
+let factorial = \r.\n.(if (zero? n) 1 (* n (r (- n 1)))) in
+// * 2 3
+Y factorial 3

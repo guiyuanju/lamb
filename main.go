@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/chzyer/readline"
 )
@@ -105,39 +107,42 @@ func isFreeVariable(x variable, t term) bool {
 	}
 }
 
-func step(from, to term) {
+func inspect(t term, indent int, prefix string) {
+	fmt.Printf("%*s%s %s\n", indent*2, " ", prefix, t)
+}
+
+func inspectIn(t term, indent int, prefix string) {
+	inspect(t, indent, "⇘ "+prefix+" ")
+}
+
+func inspectOut(t term, indent int, prefix string) {
+	inspect(t, indent, "⇙ "+prefix+" ")
+}
+
+func inspectFromTo(from, to term) {
 	fmt.Printf("%s -> %s\n", from, to)
 }
 
 func reduce(t term) term {
-	fmt.Printf(": %s\n", t)
 	switch t := t.(type) {
 	case variable:
 		return t
 	case application:
 		switch lhs := t.left.(type) {
 		case variable:
-			res := application{lhs, reduce(t.right)}
-			step(t, res)
-			return res
+			return application{lhs, reduce(t.right)}
 		case application:
-			res := reduce(application{reduce(lhs), t.right})
-			step(t, res)
-			return res
+			return application{reduce(lhs), t.right}
 		case abstraction:
-			res := reduce(substitute(lhs.body, lhs.param, t.right))
-			step(t, res)
-			return res
+			return substitute(lhs.body, lhs.param, t.right)
 		default:
 			panic("unrecognized term")
 		}
 	case abstraction:
-		res := abstraction{
+		return abstraction{
 			param: t.param,
 			body:  reduce(t.body),
 		}
-		step(t, res)
-		return res
 	default:
 		panic("unrecognized term")
 	}
@@ -179,34 +184,42 @@ func (t *Tokenizer) scan() ([]Token, bool) {
 	var res []Token
 	for t.cur < len(s) {
 		c := s[t.cur]
+
 		switch c {
 		case ' ':
 			t.column++
-			t.cur++
+			t.advance()
+
 		case '\n':
 			t.line++
 			t.column = 0
-			t.cur++
+			t.advance()
+
 		case '\\':
 			t.column++
 			res = append(res, Token{TokenLambda, "\\", t.line, t.column})
-			t.cur++
+			t.advance()
+
 		case '=':
 			t.column++
 			res = append(res, Token{TokenEq, "=", t.line, t.column})
-			t.cur++
+			t.advance()
+
 		case '(':
 			t.column++
 			res = append(res, Token{TokenLeftParen, "(", t.line, t.column})
-			t.cur++
+			t.advance()
+
 		case ')':
 			t.column++
 			res = append(res, Token{TokenRightParen, ")", t.line, t.column})
-			t.cur++
+			t.advance()
+
 		case '.':
 			t.column++
 			res = append(res, Token{TokenDot, ".", t.line, t.column})
-			t.cur++
+			t.advance()
+
 		default:
 			if t.consume("//") {
 				t.consumeTill('\n')
@@ -477,7 +490,61 @@ func (p *Parser) parseAtom() (term, bool) {
 	return variable(id.value), true
 }
 
+func numberize(t term) (int, bool) {
+	a, ok := t.(abstraction)
+	if !ok {
+		return 0, false
+	}
+	firstParam := a.param
+
+	a, ok = a.body.(abstraction)
+	if !ok {
+		return 0, false
+	}
+	secondParam := a.param
+
+	var count func(t term) (int, bool)
+	count = func(t term) (int, bool) {
+		switch t := t.(type) {
+		case abstraction:
+			return 0, false
+		case variable:
+			if t != secondParam {
+				return 0, false
+			}
+			return 0, true
+		case application:
+			left, ok := t.left.(variable)
+			if !ok || left != firstParam {
+				return 0, false
+			}
+			res, ok := count(t.right)
+			if !ok {
+				return 0, false
+			}
+			return 1 + res, true
+		default:
+			panic("unrecognized term")
+		}
+	}
+
+	return count(a.body)
+}
+
+func preproc(s string) string {
+	pat := `#use\s+(\w+)`
+	re := regexp.MustCompile(pat)
+	// text := "  #use std #use std "
+	res := re.ReplaceAllStringFunc(s, func(match string) string {
+		name := strings.Fields(match)[1] + ".lamb"
+		return loadFile(name)
+	})
+	return res
+}
+
 func run(line string) {
+	line = preproc(line)
+	fmt.Println(line)
 	tokenizer := newTokenizer(line)
 	tokens, ok := tokenizer.scan()
 	if !ok {
@@ -493,8 +560,20 @@ func run(line string) {
 		fmt.Println()
 		return
 	}
-	res := reduce(term)
-	fmt.Println(res)
+	var rewrite int
+	for {
+		newTerm := reduce(term)
+		if newTerm == term {
+			break
+		}
+		term = newTerm
+		rewrite++
+		fmt.Printf("R%d: %s", rewrite, newTerm)
+		if n, ok := numberize(newTerm); ok {
+			fmt.Printf(" -> %d", n)
+		}
+		fmt.Println()
+	}
 }
 
 func repl() {
@@ -513,14 +592,19 @@ func repl() {
 }
 
 func runFile(name string) {
-	content, err := os.ReadFile(name)
+	run(loadFile(name))
+}
+
+func loadFile(filename string) string {
+	content, err := os.ReadFile(filename)
 	if err != nil {
-		panic(fmt.Sprintf("failed to read file: %v", err))
+		panic(fmt.Sprintf("failed to load file %s: %v", filename, err))
 	}
-	run(string(content))
+	return string(content)
 }
 
 func main() {
+	preproc("")
 	if len(os.Args) == 1 {
 		repl()
 		return
