@@ -1,0 +1,53 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    /* Prevents default browser margins from causing overflow/scrollbars */
+}
+
+p {
+    font-family: monospace;
+    font-size: 16px;
+}
+
+.repl {
+    padding: 10px;
+    background-color: #121212; 
+    color: #C0CACD; 
+    font-family: monospace;
+    overflow-y: auto; /* Scroll for long output */
+    box-sizing: border-box;
+    height: 100vh;
+    width: 100vw;
+    font-size: 16px;
+}
+
+.repl-output {
+    font-family: monospace;
+    white-space: pre-line;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.repl-input-line {
+    font-family: monospace;
+    font-size: 16px;
+    display: flex;
+}
+
+.prompt {
+    font-family: monospace;
+    font-size: 16px;
+    margin-right: 10px;
+    color: #C0CACD; 
+}
+
+#stdin {
+    background: transparent; /* Make input background transparent */
+    border: none; /* Remove default input border */
+    color: #C0CACD; 
+    font-family: monospace;
+    font-size: 16px;
+    flex-grow: 1; /* Input takes up remaining space */
+    outline: none; /* Remove blue highlight on focus */
+}

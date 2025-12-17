@@ -9,11 +9,11 @@ Support
 - Normal order evaluation: support Y combinator recursion
 - Comment syntax: `// this is a comment`
 
-Build:
+Build for native:
 ```sh
 git clone https://github.com/guiyuanju/lamb
 cd lamb
-go build
+go build -o la ./cmd/native
 
 ```
 Usage:
@@ -78,4 +78,19 @@ Where `main.la`:
 let factorial = \r.\n.(if (zero? n) 1 (* n (r (- n 1)))) in
 // euqals * 2 1
 Y factorial 2
+
+## Wasm
+
+Build as Wasm to run in Browser:
+```sh
+GOARCH=wasm GOOS=js go build -o ./cmd/js/la.wasm ./cmd/js
+# Open a server in ./cmd/js, for example, you can use simplehttpserver
+simplehttpserver
+```
+
+Then open the link provided by the server in browser, the default of `simplehttpserver` is `http://0.0.0.0:8000/`.
+
+![res](./img/fac3.jpg)
+
+```
 ```
