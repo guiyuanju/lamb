@@ -107,22 +107,6 @@ func isFreeVariable(x variable, t term) bool {
 	}
 }
 
-func inspect(t term, indent int, prefix string) {
-	fmt.Printf("%*s%s %s\n", indent*2, " ", prefix, t)
-}
-
-func inspectIn(t term, indent int, prefix string) {
-	inspect(t, indent, "⇘ "+prefix+" ")
-}
-
-func inspectOut(t term, indent int, prefix string) {
-	inspect(t, indent, "⇙ "+prefix+" ")
-}
-
-func inspectFromTo(from, to term) {
-	fmt.Printf("%s -> %s\n", from, to)
-}
-
 func reduce(t term) term {
 	switch t := t.(type) {
 	case variable:
