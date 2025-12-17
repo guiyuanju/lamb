@@ -2,17 +2,17 @@
 
 Support 
 - `let` syntax sugar: `(\x.M)N == let x = N in M`
-- Simple module system: `#use filename`
+- Module system: `#use filename` (implemented as a simple text replacement preprocessor)
 - Standard library `std`
-- Pretty printing church number
-- Showing each rewrite step by step
-- Normal order evaluation, support Y combinator recursion
-- Comment syntax `//`
+- Pretty printing church number: `(λf.(λx.(f x))) -> 1`
+- Showing each rewrite step by step: `R288: (λf.(λx.(f (f x)))) -> 2` Rewrite step 282
+- Normal order evaluation: support Y combinator recursion
+- Comment syntax: `// this is a comment`
 
 Build:
 ```sh
-git clone <repo> <dir>
-cd <dir>
+git clone https://github.com/guiyuanju/lamb
+cd lamb
 go build
 
 ```
