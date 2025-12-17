@@ -10,6 +10,8 @@ import (
 	"github.com/chzyer/readline"
 )
 
+const EXT string = ".la"
+
 // Definition:
 //
 //	variable
@@ -526,7 +528,7 @@ func preproc(s string) string {
 	re := regexp.MustCompile(pat)
 	// text := "  #use std #use std "
 	res := re.ReplaceAllStringFunc(s, func(match string) string {
-		name := strings.Fields(match)[1] + ".lamb"
+		name := strings.Fields(match)[1] + EXT
 		return loadFile(name)
 	})
 	return res
