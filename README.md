@@ -1,4 +1,4 @@
-# la -- A Lambda Calculus Interpreter
+# la -- A Lambda Calculus Interpreter With Module and Std
 
 Support 
 - `let` syntax sugar: `(\x.M)N == let x = N in M`
