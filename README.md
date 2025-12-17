@@ -25,6 +25,24 @@ Usage:
 ./lamb filename
 ```
 
+Syntax:
+- Variable: Can be number, letter, special symbol or any combination of them, but cannot start with underscore `_`, which is used inside interpreter for fresh variable generation.
+- Abstraction:
+    - `\x.x`
+    - `\x.\y.y x` function only support one argument
+    - Parenthesis is optional: `(\x.x y)` is equal to `\x.x y`
+- Application:
+    - `a b` is equal to `(a b)`
+    - `a b c` is equal to `((a b) c)`, left associative
+    - `(\x.x y) y` apply lambda to argument
+- Let:
+    - `let a = b in a` replace `a` with `b` in body
+    - Can be nested: `let a = b in let c = d in a c` => `b d`
+- Module:
+    - `#use std`, `std` has no quotes, there must be a file `std.lamb` in current directory
+    - A module is a simple nested `let`: `let a = b in c = d in`
+    - The content of a module is simply copied and replace the `#use` directive
+
 REPL examples:
 ```
 > (\x.x) y
