@@ -1,4 +1,4 @@
-# Lambda Calculus Interpreter
+# la -- A Lambda Calculus Interpreter
 
 Support 
 - `let` syntax sugar: `(\x.M)N == let x = N in M`
@@ -19,10 +19,10 @@ go build
 Usage:
 ```bash
 # REPL
-./lamb
+./la
 
 # Evaluate file
-./lamb filename
+./la filename.la
 ```
 
 Syntax:
@@ -41,7 +41,7 @@ Syntax:
     - Thus cannot define recursively
     - Can be nested: `let a = b in let c = d in a c` => `b d`
 - Module:
-    - `#use std`, `std` has no quotes, there must be a file `std.lamb` in current directory
+    - `#use std`, `std` has no quotes, there must be a file `std.la` in current directory
     - A module is a simple nested `let`: `let a = b in c = d in`
     - The content of a module is simply copied and replace the `#use` directive
 
@@ -66,13 +66,13 @@ R40: (λf.(λx.(f (f (f x))))) -> 3
 
 File examples:
 ```bash
-./lamb main.lamb
+./la main.la
 ...
 R287: (λf.(λx.(f (f ((λx.x) x)))))
 R288: (λf.(λx.(f (f x)))) -> 2
 ```
 
-Where `main.lamb`:
+Where `main.la`:
 ```txt
 #use std
 let factorial = \r.\n.(if (zero? n) 1 (* n (r (- n 1)))) in
