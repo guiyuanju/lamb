@@ -4,9 +4,10 @@ Support
 - `let` syntax sugar: `(\x.M)N == let x = N in M`
 - Simple module system: `#use filename`
 - Standard library `std`
-- Pretty print church number
-- Show each rewrite step by step
+- Pretty printing church number
+- Showing each rewrite step by step
 - Normal order evaluation, support Y combinator recursion
+- Comment syntax `//`
 
 Build:
 ```sh
