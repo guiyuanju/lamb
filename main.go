@@ -552,16 +552,24 @@ func run(line string) {
 	var rewrite int
 	for {
 		newTerm := reduce(term)
-		if newTerm == term {
+		rewrite++
+
+		irreducible := newTerm == term
+
+		// Ensure printing for initially irreducible input
+		if irreducible && rewrite == 1 || !irreducible {
+			fmt.Printf("R%d: %s", rewrite, newTerm)
+			if n, ok := numberize(newTerm); ok {
+				fmt.Printf(" -> %d", n)
+			}
+			fmt.Println()
+		}
+
+		if irreducible {
 			break
 		}
+
 		term = newTerm
-		rewrite++
-		fmt.Printf("R%d: %s", rewrite, newTerm)
-		if n, ok := numberize(newTerm); ok {
-			fmt.Printf(" -> %d", n)
-		}
-		fmt.Println()
 	}
 }
 
