@@ -36,7 +36,9 @@ Syntax:
     - `a b c` is equal to `((a b) c)`, left associative
     - `(\x.x y) y` apply lambda to argument
 - Let:
-    - `let a = b in a` replace `a` with `b` in body
+    - `let a = b in body` replace `a` with `b` in body
+    - A syntax sugar for `(\a.body) b`
+    - Thus cannot define recursively
     - Can be nested: `let a = b in let c = d in a c` => `b d`
 - Module:
     - `#use std`, `std` has no quotes, there must be a file `std.lamb` in current directory
