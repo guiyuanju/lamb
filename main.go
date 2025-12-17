@@ -603,7 +603,6 @@ func loadFile(filename string) string {
 }
 
 func main() {
-	preproc("")
 	if len(os.Args) == 1 {
 		repl()
 		return
