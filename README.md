@@ -5,7 +5,7 @@ Support
 - Module system: `#use filename` (implemented as a simple text replacement preprocessor)
 - Standard library `std`
 - Pretty printing church number: `(λf.(λx.(f x))) -> 1`
-- Showing each rewrite step by step: `R288: (λf.(λx.(f (f x)))) -> 2` Rewrite step 282
+- Showing each rewrite step by step: `R288: (λf.(λx.(f (f x)))) -> 2` Rewrite step 288
 - Normal order evaluation: support Y combinator recursion
 - Comment syntax: `// this is a comment`
 
@@ -27,15 +27,18 @@ Usage:
 
 REPL examples:
 ```
-> #use std + 1 2
-...
-R39: (λf.(λx.(f (f (f ((λx.x) x))))))
-R40: (λf.(λx.(f (f (f x))))) -> 3
+> (\x.x) y
+R1: y
 
 > let 0 = \f.\x.x in let succ = \n.\f.\x.f (n f x) in succ 0
 ...
 R4: (λf.(λx.(f ((λx.x) x))))
 R5: (λf.(λx.(f x))) -> 1
+
+> #use std + 1 2
+...
+R39: (λf.(λx.(f (f (f ((λx.x) x))))))
+R40: (λf.(λx.(f (f (f x))))) -> 3
 ```
 
 File examples:
