@@ -78,6 +78,7 @@ Where `main.la`:
 let factorial = \r.\n.(if (zero? n) 1 (* n (r (- n 1)))) in
 // euqals * 2 1
 Y factorial 2
+```
 
 ## Wasm
 
