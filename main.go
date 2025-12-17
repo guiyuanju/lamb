@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"slices"
 
 	"github.com/chzyer/readline"
 )
@@ -103,34 +105,39 @@ func isFreeVariable(x variable, t term) bool {
 	}
 }
 
-// Beta reduction
-func betaReduce(m application) (term, bool) {
-	if a, ok := reduce(m.left).(abstraction); ok {
-		return substitute(a.body, a.param, m.right), true
-	}
-	return m, false
+func step(from, to term) {
+	fmt.Printf("%s -> %s\n", from, to)
 }
 
 func reduce(t term) term {
+	fmt.Printf(": %s\n", t)
 	switch t := t.(type) {
 	case variable:
 		return t
 	case application:
-		// Substitute without reducing argument
-		if t, ok := betaReduce(t); ok {
-			return reduce(t)
-		}
-		// For non-betareducable expr, reduce argument for best effort
-		return application{
-			left:  t.left,
-			right: reduce(t.right),
+		switch lhs := t.left.(type) {
+		case variable:
+			res := application{lhs, reduce(t.right)}
+			step(t, res)
+			return res
+		case application:
+			res := reduce(application{reduce(lhs), t.right})
+			step(t, res)
+			return res
+		case abstraction:
+			res := reduce(substitute(lhs.body, lhs.param, t.right))
+			step(t, res)
+			return res
+		default:
+			panic("unrecognized term")
 		}
 	case abstraction:
-		// Inspect the body of abstraction for possible reduction
-		return abstraction{
+		res := abstraction{
 			param: t.param,
 			body:  reduce(t.body),
 		}
+		step(t, res)
+		return res
 	default:
 		panic("unrecognized term")
 	}
@@ -201,6 +208,11 @@ func (t *Tokenizer) scan() ([]Token, bool) {
 			res = append(res, Token{TokenDot, ".", t.line, t.column})
 			t.cur++
 		default:
+			if t.consume("//") {
+				t.consumeTill('\n')
+				t.advance()
+				continue
+			}
 			if t.consumeKeyword("let") {
 				res = append(res, Token{TokenLet, "let", t.line, t.column})
 				continue
@@ -224,7 +236,11 @@ func (t *Tokenizer) isEnd() bool {
 	return t.cur >= len(t.str)
 }
 
-func (t *Tokenizer) consumeKeyword(s string) bool {
+func (t *Tokenizer) advance() {
+	t.cur++
+}
+
+func (t *Tokenizer) consume(s string) bool {
 	oldCur := t.cur
 	for _, c := range []byte(s) {
 		if t.isEnd() || t.str[t.cur] != c {
@@ -232,6 +248,21 @@ func (t *Tokenizer) consumeKeyword(s string) bool {
 			return false
 		}
 		t.cur++
+	}
+	return true
+}
+
+func (t *Tokenizer) consumeTill(c byte) {
+	for !t.isEnd() && t.peek() != c {
+		t.cur++
+	}
+}
+
+func (t *Tokenizer) consumeKeyword(s string) bool {
+	oldCur := t.cur
+	ok := t.consume(s)
+	if !ok {
+		return false
 	}
 	if t.isEnd() || t.peek() == ' ' || t.peek() == '\n' {
 		return true
@@ -266,12 +297,7 @@ func isVar(c byte) bool {
 
 func isSpecial(c byte) bool {
 	speicals := []byte("!@#$%^&*_+{}[]:;\"'<>?,/|~`-=")
-	for _, s := range speicals {
-		if c == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(speicals, c)
 }
 
 func isDigit(c byte) bool {
@@ -451,6 +477,26 @@ func (p *Parser) parseAtom() (term, bool) {
 	return variable(id.value), true
 }
 
+func run(line string) {
+	tokenizer := newTokenizer(line)
+	tokens, ok := tokenizer.scan()
+	if !ok {
+		fmt.Println()
+		return
+	}
+	if len(tokens) == 0 {
+		return
+	}
+	parser := Parser{0, tokens}
+	term, ok := parser.parse()
+	if !ok {
+		fmt.Println()
+		return
+	}
+	res := reduce(term)
+	fmt.Println(res)
+}
+
 func repl() {
 	rl, err := readline.New("> ")
 	if err != nil {
@@ -462,23 +508,23 @@ func repl() {
 		if err != nil {
 			break
 		}
-		tokenizer := newTokenizer(line)
-		tokens, ok := tokenizer.scan()
-		if !ok {
-			fmt.Println()
-			continue
-		}
-		parser := Parser{0, tokens}
-		term, ok := parser.parse()
-		if !ok {
-			fmt.Println()
-			continue
-		}
-		res := reduce(term)
-		fmt.Println(res)
+		run(line)
 	}
 }
 
+func runFile(name string) {
+	content, err := os.ReadFile(name)
+	if err != nil {
+		panic(fmt.Sprintf("failed to read file: %v", err))
+	}
+	run(string(content))
+}
+
 func main() {
-	repl()
+	if len(os.Args) == 1 {
+		repl()
+		return
+	}
+	filename := os.Args[1]
+	runFile(filename)
 }
