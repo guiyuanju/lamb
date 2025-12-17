@@ -534,7 +534,6 @@ func preproc(s string) string {
 
 func run(line string) {
 	line = preproc(line)
-	fmt.Println(line)
 	tokenizer := newTokenizer(line)
 	tokens, ok := tokenizer.scan()
 	if !ok {
