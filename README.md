@@ -50,6 +50,9 @@ REPL examples:
 > (\x.x) y
 R1: y
 
+> (\x.x x) (\x.x x)
+R1: ((λx.(x x)) (λx.(x x)))
+
 > let 0 = \f.\x.x in let succ = \n.\f.\x.f (n f x) in succ 0
 ...
 R4: (λf.(λx.(f ((λx.x) x))))
