@@ -72,6 +72,12 @@ func isFreeVariable(x Variable, t Term) bool {
 // The reason for this approach is because simple recursion won't terminate
 // when evaluate e.g. Y combinator, step-wise reduce enables comparison
 // of previous and current terms, and stop if no changes (not reducible).
+// It is a recursive function, but not a recursive evaluator,
+// the recursion just search the tree until it find a var or a application
+// whose lhs is an abstraction, for a var, return as it is,
+// for application, replace arg (unevaluated) in the body.
+// The structure of the tree is not touched, only one place of application
+// is substituted, hence not recursively evaluated.
 func Reduce(t Term) Term {
 	switch t := t.(type) {
 	case Variable:
