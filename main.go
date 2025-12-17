@@ -107,6 +107,12 @@ func isFreeVariable(x variable, t term) bool {
 	}
 }
 
+// Reduce rewrite one piece of term at a time.
+// Need an outer loop to proceed steps,
+// and termination condition should be new term returned is the same as the input term.
+// The reason for this approach is because simple recursion won't terminate
+// when evaluate e.g. Y combinator, step-wise reduce enables comparison
+// of previous and current terms, and stop if no changes (not reducible).
 func reduce(t term) term {
 	switch t := t.(type) {
 	case variable:
