@@ -7,6 +7,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/chzyer/readline"
 )
 
 const EXT string = ".la"
@@ -104,20 +106,20 @@ func Run(line string, w io.Writer) {
 	}
 }
 
-// func replWithReadline() {
-// 	rl, err := readline.New("> ")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	for {
-// 		line, err := rl.Readline()
-// 		if err != nil {
-// 			break
-// 		}
-// 		run(line)
-// 	}
-// }
+func replWithReadline() {
+	rl, err := readline.New("> ")
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		line, err := rl.Readline()
+		if err != nil {
+			break
+		}
+		Run(line, os.Stdout)
+	}
+}
 
 func replBare() {
 	sc := bufio.NewScanner(os.Stdin)
@@ -132,8 +134,8 @@ func replBare() {
 }
 
 func Repl() {
-	// replWithReadline()
-	replBare()
+	replWithReadline()
+	// replBare()
 }
 
 func RunFile(name string, w io.Writer) {

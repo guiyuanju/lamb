@@ -83,6 +83,14 @@ func Reduce(t Term) Term {
 	case Variable:
 		return t
 	case Application:
+		// lhs := Reduce(t.Left)
+		// if t.Left != lhs {
+		// 	return Application{lhs, t.Right}
+		// }
+		// if a, ok := lhs.(Abstraction); ok {
+		// 	return substitute(a.Body, a.Param, t.Right)
+		// }
+		// return Application{lhs, Reduce(t.Right)}
 		switch lhs := t.Left.(type) {
 		case Variable:
 			return Application{lhs, Reduce(t.Right)}
