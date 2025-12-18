@@ -3,7 +3,7 @@ package lamb
 import "fmt"
 
 // expr        ::= lambda | application | let
-// let         ::= "let" var "=" expr "in" expr
+// let         ::= "let" { var } "=" expr "in" expr
 // lambda      ::= "\" var "." expr
 // application ::= atom { atom }
 // atom        ::= var | "(" expr ")"
@@ -110,25 +110,40 @@ func (p *Parser) parseLet() (Term, bool) {
 	}, true
 }
 
-// lambda      ::= "\" var "." expr
+// lambda      ::= "\" { var } "." expr
 func (p *Parser) parseLambda() (Term, bool) {
 	p.advance()
-	id, ok := p.consume(TokenVar)
-	if !ok {
-		p.printError("expect a variable")
-		return nil, false
+
+	var params []Variable
+	for {
+		id, ok := p.consume(TokenVar)
+		if !ok {
+			p.printError("expect a variable")
+			return nil, false
+		}
+		params = append(params, Variable(id.value))
+		if p.peek().ttype == TokenDot {
+			break
+		}
 	}
-	param := Variable(id.value)
-	_, ok = p.consume(TokenDot)
+
+	_, ok := p.consume(TokenDot)
 	if !ok {
 		p.printError("expect dot")
 		return nil, false
 	}
+
 	body, ok := p.parseExpr()
 	if !ok {
 		return nil, false
 	}
-	return Abstraction{param, body}, true
+
+	var res Term = body
+	for i := len(params) - 1; i >= 0; i-- {
+		res = Abstraction{params[i], res}
+	}
+
+	return res, true
 }
 
 // application ::= atom { atom }
