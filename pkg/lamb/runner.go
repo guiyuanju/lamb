@@ -107,7 +107,7 @@ func Run(line string, w io.Writer) {
 }
 
 func replWithReadline() {
-	rl, err := readline.New("> ")
+	rl, err := readline.New("λ> ")
 	if err != nil {
 		panic(err)
 	}
@@ -124,7 +124,7 @@ func replWithReadline() {
 func replBare() {
 	sc := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("> ")
+		fmt.Print("λ> ")
 		if !sc.Scan() {
 			break
 		}
