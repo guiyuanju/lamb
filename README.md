@@ -8,6 +8,7 @@ Support
 - Showing each rewrite step by step: `R288: (λf.(λx.(f (f x)))) -> 2` Rewrite step 288
 - Normal order evaluation: support Y combinator recursion
 - Comment syntax: `// this is a comment`
+- Multiple arguments syntax sugar: `\f x.f (f x)` == `\f.\x.f (f x)`
 
 Build for native:
 ```sh
