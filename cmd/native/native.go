@@ -5,6 +5,8 @@ import (
 	"os"
 
 	. "la/pkg/lamb"
+
+	"github.com/chzyer/readline"
 )
 
 func main() {
@@ -29,4 +31,24 @@ func main() {
 	// run from file
 	filename := arg
 	RunFile(filename, os.Stdout)
+}
+
+func replWithReadline() {
+	rl, err := readline.New("λ> ")
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		line, err := rl.Readline()
+		if err != nil {
+			break
+		}
+		Run(line, os.Stdout)
+	}
+}
+
+func Repl() {
+	replWithReadline()
+	// replBare()
 }
