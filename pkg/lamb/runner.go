@@ -7,8 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
-	"github.com/chzyer/readline"
 )
 
 const EXT string = ".la"
@@ -67,7 +65,7 @@ func preproc(s string) string {
 
 func Run(line string, w io.Writer) {
 	line = preproc(line)
-	tokenizer := NewTokenizer(line)
+	tokenizer := NewTokenizer(w, line)
 	tokens, ok := tokenizer.Scan()
 	if !ok {
 		fmt.Fprintln(w)
@@ -76,7 +74,7 @@ func Run(line string, w io.Writer) {
 	if len(tokens) == 0 {
 		return
 	}
-	parser := NewParser(tokens)
+	parser := NewParser(w, tokens)
 	term, ok := parser.Parse()
 	if !ok {
 		fmt.Fprintln(w)
@@ -106,21 +104,6 @@ func Run(line string, w io.Writer) {
 	}
 }
 
-func replWithReadline() {
-	rl, err := readline.New("λ> ")
-	if err != nil {
-		panic(err)
-	}
-
-	for {
-		line, err := rl.Readline()
-		if err != nil {
-			break
-		}
-		Run(line, os.Stdout)
-	}
-}
-
 func replBare() {
 	sc := bufio.NewScanner(os.Stdin)
 	for {
@@ -131,11 +114,6 @@ func replBare() {
 		line := sc.Text()
 		Run(line, os.Stdout)
 	}
-}
-
-func Repl() {
-	replWithReadline()
-	// replBare()
 }
 
 func RunFile(name string, w io.Writer) {

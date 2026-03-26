@@ -2,6 +2,7 @@ package lamb
 
 import (
 	"fmt"
+	"io"
 	"slices"
 )
 
@@ -26,14 +27,15 @@ type Token struct {
 }
 
 type Tokenizer struct {
+	w      io.Writer
 	cur    int
 	str    string
 	line   int
 	column int
 }
 
-func NewTokenizer(s string) Tokenizer {
-	return Tokenizer{0, s, 0, -1}
+func NewTokenizer(w io.Writer, s string) Tokenizer {
+	return Tokenizer{w, 0, s, 0, -1}
 }
 
 func (t *Tokenizer) Scan() ([]Token, bool) {
@@ -93,7 +95,7 @@ func (t *Tokenizer) Scan() ([]Token, bool) {
 			}
 			name, ok := t.scanVar()
 			if !ok {
-				fmt.Printf("expected a variable, got \"%s\"\n", string(c))
+				fmt.Fprintf(t.w, "expected a variable, got \"%s\"\n", string(c))
 				return res, false
 			}
 			res = append(res, name)
@@ -147,7 +149,7 @@ func (t *Tokenizer) peek() byte {
 
 func (t *Tokenizer) scanVar() (Token, bool) {
 	if !isVar(t.peek()) {
-		fmt.Printf(
+		fmt.Fprintf(t.w,
 			"unrecognized token \"%s\", expect a letter as the start of an variable",
 			string(t.peek()))
 		return Token{}, false

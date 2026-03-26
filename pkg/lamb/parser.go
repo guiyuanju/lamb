@@ -1,6 +1,9 @@
 package lamb
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 // expr        ::= lambda | application | let
 // let         ::= "let" { var } "=" expr "in" expr
@@ -9,12 +12,13 @@ import "fmt"
 // atom        ::= var | "(" expr ")"
 // var         ::= identifier
 type Parser struct {
+	w      io.Writer
 	cur    int
 	tokens []Token
 }
 
-func NewParser(tokens []Token) Parser {
-	return Parser{0, tokens}
+func NewParser(w io.Writer, tokens []Token) Parser {
+	return Parser{w, 0, tokens}
 }
 
 func (p *Parser) peek() Token {
@@ -51,11 +55,14 @@ func (p *Parser) printError(info string) {
 	}
 	line = token.line
 	column = token.column
-	fmt.Printf("%d:%d %s\n", line, column, info)
+	fmt.Fprintf(p.w, "%d:%d %s\n", line, column, info)
 }
 
 func (p *Parser) Parse() (Term, bool) {
 	res, ok := p.parseExpr()
+	if !ok {
+		return nil, false
+	}
 	if !p.isEnd() {
 		p.printError(fmt.Sprintf("expect EOF, got \"%s\"", p.peek().value))
 		return nil, false
