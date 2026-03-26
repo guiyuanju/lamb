@@ -1,4 +1,6 @@
-# la -- A Lambda Calculus Interpreter With Module and Std
+# La
+
+A Lambda Calculus Interpreter With Module and Std.
 
 See online demo: [Interpreter compiled to WASM](https://guiyuanju.github.io/lambda-calculus-interpreter.html)
 
