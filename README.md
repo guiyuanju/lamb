@@ -2,7 +2,7 @@
 
 A Lambda Calculus Interpreter With Module and Std.
 
-See online demo: [Interpreter compiled to WASM](https://guiyuanju.github.io/lambda-calculus-interpreter.html)
+See the [online demo](https://guiyuanju.github.io/lambda-calculus-interpreter.html)
 
 Support
 
